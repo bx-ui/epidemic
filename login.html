@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<meta name="viewport"
+		content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<link href="css/mui.min.css" rel="stylesheet" />
+</head>
+<style type="text/css">
+	.logob {
+		height: 4rem;
+		text-align: center;
+	}
+
+	.logo {
+		width: 2.27rem;
+		margin-top: 1.48rem;
+		border-radius: 30px;
+	}
+
+	.Edition {
+		text-align: center;
+	}
+
+	.Edition h3 {
+		font-size: 0.5rem;
+	}
+
+	.Edition span {
+		font-size: 0.4rem;
+		color: #ABABAB;
+	}
+
+	.int {
+		width: 7.7rem;
+		height: 1.42rem;
+		margin: 0 auto;
+		margin-top: 0.97rem;
+		border-radius: 33px;
+		overflow: hidden;
+		border: 1px solid #AFAFAF;
+		position: relative;
+	}
+
+	.int input {
+		width: 100%;
+		height: 100%;
+		border: 0;
+		padding-left: 1.47rem;
+		font-size: 0.45rem;
+	}
+
+	.password {
+		margin-top: 0.5rem;
+	}
+
+	.login button {
+		width: 100%;
+		height: 100%;
+		background: #589FFF;
+		color: #fff;
+		border: 0;
+		font-size: 0.5rem;
+	}
+
+	.intimg {
+		width: 0.55rem;
+		height: 0.55rem;
+		position: absolute;
+		left: 0.52rem;
+		top: 0.4rem;
+	}
+</style>
+
+<body>
+	<div class="logob">
+
+		<img class="logo" src="image/logo.jpg" />
+	</div>
+	<div class="Edition">
+		<h3>海客会管理</h3>
+		<!-- <span>版本1.0</span> -->
+	</div>
+	<div class="username int">
+		<img class="intimg" src="image/username.png" />
+		<input placeholder="用户名" type="text" name="" id="userName" value="" />
+	</div>
+	<div class="password int">
+		<img class="intimg" src="image/password.png" />
+		<input placeholder="密码" type="password" name="" id="passWord" value="" />
+	</div>
+	<div class="login int">
+		<button id="login_in">登录</button>
+	</div>
+	<script src="js/mui.min.js"></script>
+	<script src="js/jquery-3.2.1.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/rem.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		mui.init()
+		var loginIn = document.getElementById('login_in');
+		loginIn.addEventListener('click', function(){
+			var username = $('#userName').val();
+			var password = $('#passWord').val();
+			if(!username){
+				mui.toast('请输入用户名')
+				return false;
+			}
+			if(!password){
+				mui.toast('请输入密码')
+				return false;
+			}
+			$.ajax({
+				type: 'GET',
+				url: `http://www.hisunflower.com/mobile/index.php?act=login&op=wyStewardLogin&password=${password}&username=${username}&login_type=2&client=android`,
+				dataType:"json",
+				success: function(msg){
+					removeJwtToken();
+					console.log(msg.datas);
+					if(msg.code != 200){
+						mui.toast(msg.datas.error)
+						return false;
+					}
+					// 缓存token
+					var token = msg.datas.key;
+					localStorage.clear()
+					localStorage.setItem("token", token);
+					// 跳转页面
+					window.location.href="index.html";
+					mui.toast('登录成功')
+				}
+			})
+		})
+		
+		// 清空本地存储
+		function removeJwtToken() {
+			localStorage.removeItem("token");
+		}
+	</script>
+</body>
+
+</html>

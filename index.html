@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+	<meta name="viewport"
+		content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+	<link rel="stylesheet" type="text/css" href="css/content.css"/>
+	<link rel="stylesheet" type="text/css" href="css/reset.css"/>
+	<link rel="stylesheet" type="text/css" href="css/dialog.css"/>
+	<!-- <link rel="stylesheet" type="text/css" href="js/need/layer.css"/> -->
+	<style type="text/css">
+		html,body{
+			width: 100%;
+			height: 100%;
+		}
+		.mui-content {
+			width: 100%;
+			height: 100%;
+			background: #fff;
+			/* overflow: scroll; */
+		}
+		.mui-title{font-size: .5rem;}
+		.mui-segmented-control{ font-size: .4rem;}
+		#segmentedControl{margin-top: 44px}
+		.index_content{
+			width: 100%; 
+			height: 1.2rem; 
+			display: flex;
+			justify-content: space-between;
+			margin-bottom: 0.3rem;
+			padding: 0px 10px;
+		}
+		.index_body{
+			width: 47%;
+			height: 100%;
+			background-color: pink;
+			display: flex;
+			border-radius: 5px;
+		}
+		.index_han{
+			width: 50%;
+			height: 100%;
+			background-color: green;
+			color: #fff;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			font-size: .32rem;
+			border-top-left-radius: 5px;
+			border-bottom-left-radius: 5px;
+		}
+		.index_num{
+			width: 50%;
+			height: 100%;
+			background-color: #fff;
+			color: green;
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+			padding-right: 15px;
+			font-size: .6rem;
+			border-top-right-radius: 5px;
+			border-bottom-right-radius: 5px;
+			border: 1px solid rgba(0,0,0,0.2);
+		}
+		.mui-input-row{
+			display: flex;
+			align-items: center;
+			height: 40px;
+		}
+		.mui-input-row label {
+			font-size: .4rem;
+		}
+		.mui-content{
+			width: 100%;
+			height: 100%;
+			/* overflow: scroll; */
+			padding: 0 !important;
+		}
+		.bg{
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0,0,0,0.6);
+			z-index: 20;
+			position: fixed;
+			top: 0;
+			left: 0;
+		}
+		.tip{
+			width: 100%;
+			text-align: center;
+			margin-top: 60px;
+			font-size: .8rem;
+			color: rgba(0,0,0,0.4);
+		}
+		#refreshContainer{
+			margin-top: 104px;
+			height: calc(100% - 104px);
+			width: 100%;
+		}
+		.mui-scroll{
+			width: 100%;
+			height: 100%;
+		}
+		.border_line{
+			border-right: 1px solid rgba(0,0,0,0.2) !important;
+		}
+	</style>
+</head>
+<body>
+	<header class="mui-bar mui-bar-nav">
+		<h1 class="mui-title" >疫情防控管理</h1>
+		<a class="mui-icon mui-icon-plusempty mui-pull-right" onclick="addData()"></a>
+	</header>
+	<span id="stop"></span>
+	<!-- 顶部导航 -->
+	<div style="padding: 10px 10px; background-color: #fff;">
+		<div id="segmentedControl" class="mui-segmented-control mui-segmented-control-inverted mui-segmented-control-primary">
+			<span class="mui-control-item mui-active border_line" onclick="jumpPage(0)">
+				待编辑
+			</span>
+			<span class="mui-control-item" onclick="jumpPage(1)">
+				已编辑
+			</span>
+		</div>
+	</div>
+	<!--下拉刷新容器-->
+	<div id="refreshContainer" class="mui-content mui-scroll-wrapper">
+	  <div class="">
+	    <!--数据列表-->
+			<div class="mui-content" id="doMessage" style="display: block;">
+				<div class="mui-input-row mui-search">
+				    <input type="search" class="mui-input-clear" placeholder="请输入查找内容" id="search">
+				</div>
+				<!-- 索引 -->
+				<div class="index_content">
+					<div class="index_body">
+						<div class="index_han">
+							<span>今日登记人数</span>
+						</div>
+						<div class="index_num" id="today_people">0</div>
+					</div>
+					<div class="index_body">
+						<div class="index_han" style="background-color: orange;">
+							<span>体温异常人数</span>
+						</div>
+						<div class="index_num" style="color: orange;" id="hot_people">0</div>
+					</div>
+				</div>
+				<!-- 内容区域 -->
+				<ul id="ulData">
+					
+				</ul>
+			</div>
+			<div class="mui-content" id="loadMessage" style="display: none;">
+				<div class="mui-input-row mui-search">
+				    <input type="search" class="mui-input-clear" placeholder="请输入查找内容" id="search_did">
+				</div>
+				<!-- 索引 -->
+				<div class="index_content">
+					<div class="index_body">
+						<div class="index_han">
+							<span>今日登记人数</span>
+						</div>
+						<div class="index_num"id="today_people_two">4</div>
+					</div>
+					<div class="index_body">
+						<div class="index_han" style="background-color: orange;">
+							<span>体温异常人数</span>
+						</div>
+						<div class="index_num" style="color: orange;" id="hot_people_two">0</div>
+					</div>
+				</div>
+				<!-- 内容区域 -->
+				<ul id="ulMessage">
+					
+				</ul>
+			</div>
+	  </div>
+	</div>
+	
+	<div class="dialog_form" id="dialog_form" style="display: none;z-index: 100;">
+			<form class="mui-input-group">
+				<div class="mui-input-row">
+					<label>房间号</label>
+					<input type="text" class="mui-input-clear" placeholder="请输入房间号" id="room">
+				</div>
+				<div class="mui-input-row">
+					<label>姓名</label>
+					<input type="text" class="mui-input-clear" placeholder="请输入姓名" id="name">
+				</div>
+				<div class="mui-input-row">
+					<label>手机号</label>
+					<input type="text" class="mui-input-clear" placeholder="请输入手机号" id="ipone">
+				</div>
+				<div class="mui-input-row">
+					<label>身份证号</label>
+					<input type="text" class="mui-input-clear" placeholder="请输入身份证号" id="cardId">
+				</div>
+				<div class="mui-input-row">
+					<label>身份</label>
+					<select id="prople">
+						<option value ="1">产权人</option>
+						<option value ="2">家属</option>
+						<option value ="3">租客</option>
+						<option value ="4">员工</option>
+						<option value ="5">访客</option>
+						<option value ="6">其他</option>
+					</select>
+				</div>
+				<div class="mui-input-row">
+					<label>体温</label>
+					<input type="text" class="mui-input-clear" placeholder="请输入体温" id="bodyHot">
+				</div>
+				<div class="mui-button-row">
+					<button type="button" class="mui-btn mui-btn-primary" onclick="doSubmit(num)">确认</button>
+					<button type="button" class="mui-btn mui-btn-danger" onclick="back()">取消</button>
+				</div>
+			</form>
+		</div>
+	
+	<div class="bg" id="bg" style="display: none;"></div>
+	<script src="js/mui.min.js"></script>
+	<script src="js/jquery-3.2.1.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/rem.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/core.js" type="text/javascript" charset="utf-8"></script>
+	<script src="layer.js"></script>
+	<!-- <script src="js/webviewGroup.js" type="text/javascript" charset="utf-8"></script> -->
+	<script type="text/javascript">
+		 mui.init({
+			 pullRefresh: {
+				 container: "#refreshContainer",
+				 down: {
+					 contentdown: "下拉刷新",
+					 contentover: "释放刷新",
+					 contentrefresh: "正在刷新",
+					 callback: pulldownRefresh,
+				 },
+				 up: {
+					contentrefresh: "正在加载...", 
+					contentnomore: '没有更多数据了',
+					 callback: pullupRefresh,
+				 }
+			 }
+		 });
+		 function pulldownRefresh(){
+			 getData().then(res => {
+				mui("#refreshContainer").pullRefresh().endPulldownToRefresh();
+			 })
+		 }
+		 function pullupRefresh(){
+			 mui("#refreshContainer").pullRefresh().endPullupToRefresh();
+		 }
+		 var doMessage = document.getElementById('doMessage');
+		 var loadMessage = document.getElementById('loadMessage');
+		 var dia = document.getElementById('dialog_form');
+		 var ulData = document.getElementById('ulData');
+		 var ulMessage = document.getElementById('ulMessage');
+		 var search = document.getElementById('search');
+		 var search_did = document.getElementById('search_did');
+		 var bg = document.getElementById('bg');
+		 var contentImage = document.getElementById('content-image')
+		 var segmentedControl = document.getElementById('segmentedControl')
+		 var token = localStorage.getItem('token');
+		 var keyWord = "";
+		 var todayPeople = document.getElementById('today_people')
+		 var hotPeople = document.getElementById('hot_people')
+		 var todayPeopleTwo = document.getElementById('today_people_two')
+		 var hotPeopleTwo = document.getElementById('hot_people_two')
+		 var dataList = [];
+		 var is_edited = 0;
+		 var num = 1;
+		 var data = {};
+		 var formObj = {
+		 	room_name: "",  //房间号
+		 	member_name: "",  //姓名
+		 	mobile: "",  //手机号
+		 	id_card: "",  //身份证号
+		 	member_type: "",  //身份
+		 	temperature_value: "",  //体温
+		 	key: '',
+		 };
+		 window.onload = function(){
+            if (localStorage.getItem('token')== null || localStorage.getItem('token')== undefined || localStorage.getItem('token')== "") {
+                window.location = 'login.html';
+            }
+			getData();
+		 }
+		 function getData(){
+			return new Promise((resolve,reject) => {
+				$.ajax({
+					type: 'GET',
+					url: `http://www.hisunflower.com/mobile/index.php?act=wy_temperature_record&op=wyGetMemberList0219&key=${token}&keyWord=${keyWord}&is_edited=${is_edited}&page_size=100`,
+					dataType:"json",
+					processData: false,
+					contentType: false,
+					success: function(msg){
+						if(msg.datas.error){
+							mui.toast(msg.datas.error)
+						}
+						resolve();
+						dataList = msg.datas.member_list;
+						console.log(msg)
+						if(is_edited == 0){
+							todayPeople.innerHTML = msg.datas.sub_count;
+							hotPeople.innerHTML = msg.datas.un_temperature_count;
+						}else{
+							todayPeopleTwo.innerHTML = msg.datas.sub_count;
+							hotPeopleTwo.innerHTML = msg.datas.un_temperature_count;
+						}
+						render(msg.datas.member_list, is_edited);
+					},
+				})
+			})
+		 }
+		 // 待编辑渲染
+		function doRender(data){
+			ulData.innerHTML = "";
+			console.log(data,"data")
+			if(!data){
+				ulData.innerHTML = `<div class="tip">暂无数据</div>`
+			}
+			data.forEach((item,index) => {
+				if(item.temperature_value < 37.3){
+					ulData.innerHTML += `
+						<li class="content_box">
+							<div class="con_content">
+								<div class="con_content_title">房间号:</div>
+								<div class="con_content_text">${item.room_name}</div>
+							</div>
+							<div class="con_content">
+								<span class="con_content_title">身份:</span>
+								<span class="con_content_text">${item.member_type_name}</span>
+							</div>
+							<div class="con_content">
+								<span class="con_content_title">手机号:</span>
+								<span class="con_content_text">${item.mobile}</span>
+							</div>
+							<div class="con_content">
+								<span class="con_content_title">身份证号:</span>
+								<span class="con_content_text">${item.id_card}</span>
+							</div>
+							<div class="con_content">
+								<span class="con_name_title">姓名:</span>
+								<span class="con_name_center">${item.member_name}</span>
+								<button type="button" class="mui-btn mui-btn-primary con_btn dpclick" >待登记</button>
+							</div>
+							<div class="con_content">
+								<div class="con_content_title">进入时间:</div>
+								<div class="con_content_text">${item.add_time}</div>
+							</div>
+							<div class="con_content">
+								<div class="con_content_title">体温:</div>
+								<div class="con_content_text">${item.temperature_value}</div>
+							</div>
+						</li>
+					`
+				}else{
+					ulData.innerHTML += `
+						<li class="content_box">
+							<div class="con_content">
+								<div class="con_content_title">房间号:</div>
+								<div class="con_content_text">${item.room_name}</div>
+							</div>
+							<div class="con_content">
+								<span class="con_content_title">身份:</span>
+								<span class="con_content_text">${item.member_type_name}</span>
+							</div>
+							<div class="con_content">
+								<span class="con_content_title">手机号:</span>
+								<span class="con_content_text">${item.mobile}</span>
+							</div>
+							<div class="con_content">
+								<span class="con_content_title">身份证号:</span>
+								<span class="con_content_text">${item.id_card}</span>
+							</div>
+							<div class="con_content">
+								<span class="con_name_title">姓名:</span>
+								<span class="con_name_center">${item.member_name}</span>
+								<button type="button" class="mui-btn mui-btn-primary con_btn dpclick" >待登记</button>
+							</div>
+							<div class="con_content">
+								<div class="con_content_title">进入时间:</div>
+								<div class="con_content_text">${item.add_time}</div>
+							</div>
+							<div class="con_content">
+								<div class="con_content_title">体温:</div>
+								<div class="con_content_text">${item.temperature_value}</div>
+							</div>
+							<div class="content-image" id="content-image" style="display: block;">
+								<img src="image/see.png" class="">
+							</div>
+						</li>
+					`
+				}
+				
+			})
+		}
+		function loadRender(data){
+			ulMessage.innerHTML = "";
+			if(!data){
+				ulMessage.innerHTML = `<div class="tip">暂无数据</div>`
+				return false;
+			}
+			data.forEach((item,index) => {
+				if(item.temperature_value < 37.3){
+					ulMessage.innerHTML += `
+						<li class="content_box">
+							<div class="con_content">
+								<div class="con_content_title">房间号:</div>
+								<div class="con_content_text">${item.room_name}</div>
+							</div>
+							<div class="con_content">
+								<span class="con_content_title">身份:</span>
+								<span class="con_content_text">${item.member_type_name}</span>
+							</div>
+							<div class="con_content">
+								<span class="con_content_title">手机号:</span>
+								<span class="con_content_text">${item.mobile}</span>
+							</div>
+							<div class="con_content">
+								<span class="con_content_title">身份证号:</span>
+								<span class="con_content_text">${item.id_card}</span>
+							</div>
+							<div class="con_content">
+								<span class="con_content_title">姓名:</span>
+								<span class="con_content_text">${item.member_name}</span>
+							</div>
+							<div class="con_content">
+								<div class="con_content_title">进入时间:</div>
+								<div class="con_content_text">${item.add_time}</div>
+							</div>
+							<div class="con_content">
+								<div class="con_content_title">体温:</div>
+								<div class="con_content_text">${item.temperature_value}</div>
+							</div>
+						</li>
+					`
+				}else{
+					ulMessage.innerHTML += `
+						<li class="content_box">
+							<div class="con_content">
+								<div class="con_content_title">房间号:</div>
+								<div class="con_content_text">${item.room_name}</div>
+							</div>
+							<div class="con_content">
+								<span class="con_content_title">身份:</span>
+								<span class="con_content_text">${item.member_type_name}</span>
+							</div>
+							<div class="con_content">
+								<span class="con_content_title">手机号:</span>
+								<span class="con_content_text">${item.mobile}</span>
+							</div>
+							<div class="con_content">
+								<span class="con_content_title">身份证号:</span>
+								<span class="con_content_text">${item.id_card}</span>
+							</div>
+							<div class="con_content">
+								<span class="con_content_title">姓名:</span>
+								<span class="con_content_text">${item.member_name}</span>
+							</div>
+							<div class="con_content">
+								<div class="con_content_title">进入时间:</div>
+								<div class="con_content_text">${item.add_time}</div>
+							</div>
+							<div class="con_content">
+								<div class="con_content_title">体温:</div>
+								<div class="con_content_text">${item.temperature_value}</div>
+							</div>
+							<div class="content-image" id="content-image" style="display: block;">
+								<img src="image/see.png" class="">
+							</div>
+						</li>
+					`
+				}
+			})
+		}
+		function render(data, code){
+			console.log(code)
+			if(code == 0){
+				// 待编辑渲染
+				doRender(data);
+			}else if(code == 1){
+				//已编辑渲染
+				loadRender(data);
+			}
+		}
+		function addData(){
+			num = 1;
+			document.getElementById('room').value = "";
+			document.getElementById('name').value = "";
+			document.getElementById('ipone').value = "";
+			document.getElementById('cardId').value = "";
+			document.getElementById('prople').value = "业主";
+			document.getElementById('bodyHot').value = "";
+			dia.style.display = "block";
+			bg.style.display = "block";
+		}
+		function back(){
+			dia.style.display = "none";
+			bg.style.display = "none";
+			mui.toast('您已取消该操作');
+		}
+		search.addEventListener('change', function(event){
+				keyWord = search.value;
+				getData();
+		})
+		search_did.addEventListener('change', function(event){
+				keyWord = search_did.value;
+				getData();
+		})
+		function doSubmit(code){
+			var paramsData = {};
+			formObj.room_name = $("#room").val();
+			formObj.member_name = $("#name").val();
+			formObj.mobile = $("#ipone").val();
+			formObj.id_card = $("#cardId").val();
+			formObj.member_type = $("#prople").val();
+			formObj.temperature_value = $("#bodyHot").val();
+			formObj.key = token;
+			console.log(formObj)
+			// 验证
+			if(formObj.room_name == ""){
+				mui.toast('房间名不能为空')
+				reject();
+				return false;
+			}
+			if(formObj.member_name == ""){
+				mui.toast("姓名不能为空")
+				reject();
+				return false
+			}
+			if(formObj.mobile == ""){
+				mui.toast("手机号不能为空")
+				reject();
+				return false;
+			}
+			if(formObj.id_card == ""){
+				mui.toast("身份证号不能为空")
+				reject();
+				return false;
+			}
+			if(formObj.member_type == ""){
+				mui.toast("身份不能为空")
+				reject();
+				return false;
+			}
+			if(formObj.temperature_value == ""){
+				mui.toast("体温不能为空")
+				reject();
+				return false
+			}
+			if(code == 1){
+				formObj.id = "";
+				paramsData = formObj;
+			}
+			if(code == 2){
+				var obj = JSON.parse(JSON.stringify(formObj));
+				formObj.id = data.id;
+				paramsData = formObj;
+			}
+			$.ajax({
+				type: 'POST',
+				url: `http://www.hisunflower.com/mobile/index.php?act=wy_temperature_record&op=wyPostStwardSubMemberInfo`,
+				data: paramsData,
+				dataType:"json",
+				success: function(msg){
+					if(msg.code == 200){
+						bg.style.display = "none";
+						dia.style.display = "none";
+						mui.toast('添加成功')
+					}
+					else{
+						mui.toast(msg.datas.error);
+					}
+				}
+			})
+		}
+		function formRule(){
+			return new Promise((resolve,reject) => {
+				
+				resolve();
+			})
+		}
+		$("#ulData").on('click','.dpclick',function(){
+			num = 2;
+			let $parent = $(this).parents('li');
+			let index = $parent.index();
+			console.log(dataList[index]);
+			data = dataList[index];
+			dia.style.display = "block";
+			bg.style.display = "block";
+			document.getElementById('room').value = data.room_name;
+			document.getElementById('name').value = data.member_name;
+			document.getElementById('ipone').value = data.mobile;
+			document.getElementById('cardId').value = data.id_card;
+			document.getElementById('prople').value = data.member_type;
+			document.getElementById('bodyHot').value = data.temperature_value;
+			// 再次点击确定按钮
+		});
+		$("#ulMessage").on('click', '.dpclick', function(){
+			num =2;
+			let $parent = $(this).parents('li');
+			let index = $parent.index();
+			data = dataList[index];
+			dia.style.display = "block";
+			bg.style.display = "block";
+			document.getElementById('room').value = data.room_name;
+			document.getElementById('name').value = data.member_name;
+			document.getElementById('ipone').value = data.mobile;
+			document.getElementById('cardId').value = data.id_card;
+			document.getElementById('prople').value = data.member_type;
+			document.getElementById('bodyHot').value = data.temperature_value;
+		})
+		function jumpPage(num){
+			
+			console.log(num);
+			keyWord="";
+			search.value="";
+			search_did.value="";
+			if(num == 0){
+				is_edited = 0;
+				doMessage.style.display = "block";
+				loadMessage.style.display = "none";
+				
+				getData().then(res => {
+					mui('#refreshContainer').pullRefresh().pulldownLoading();
+				})
+				
+			}else{
+				is_edited = 1;
+				doMessage.style.display = "none";
+				loadMessage.style.display = "block";
+				
+				getData().then(res => {
+					mui('#refreshContainer').pullRefresh().pulldownLoading();
+				})
+				
+			}
+		}
+	</script>
+</body>
+</html>
